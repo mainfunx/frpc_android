@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/ic_add_white"
+        android:orderInCategory="100"
+        android:title="@string/action_add"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/action_new_text"
+                android:orderInCategory="100"
+                android:title="@string/action_add_text"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_add_file"
+                android:orderInCategory="100"
+                android:title="@string/action_add_file"
+                android:visible="false"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_add_url"
+                android:orderInCategory="100"
+                android:title="@string/action_add_url"
+                android:visible="false"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_add_scan"
+                android:orderInCategory="100"
+                android:title="@string/action_add_scan"
+                android:visible="false"
+                app:showAsAction="never" />
+
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>

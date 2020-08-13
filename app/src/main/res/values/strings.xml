@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">Frpc_Android</string>
+    <string name="title_activity_main">FRPC_ANDROID</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_home">配置文件</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+
+    <string name="home_second">Home Second</string>
+    <string name="permissionReason">请授予存储权限，用于读写frp配置文件</string>
+    <string name="action_add">添加</string>
+    <string name="action_add_text">新建配置文本</string>
+    <string name="action_add_url">从网址导入</string>
+    <string name="action_add_file">从文件导入</string>
+    <string name="action_add_scan">扫描二维码</string>
+
+
+    <string name="action_save">保存</string>
+    <string name="action_template">模板</string>
+    <string name="titleInputFileName">请输入文件名称</string>
+    <string name="cancel">取消</string>
+    <string name="tipSaveSuccess">保存成功</string>
+    <string name="actionDeleteSuccess">已删除 </string>
+    <string name="actionDeleteFailed"> 删除失败</string>
+    <string name="intent_key_file">file_path</string>
+    <string name="titleModifyFileName">修改文件名称</string>
+    <string name="notOpened">未开启</string>
+    <string name="hasOpened">已开启</string>
+    <string name="notSelectIni">未选择配置文件</string>
+    <string name="needStopService">请先关闭服务</string>
+    <string name="title_about">关于</string>
+    <string name="title_logcat">logcat</string>
+    <string name="noName">未命名</string>
+    <string name="logcat_copy">复制</string>
+    <string name="logcat_delete">删除</string>
+    <string name="copySuccess">复制成功</string>
+    <string name="title_frp_version">frp version 0.33.0</string>
+    <string name="title_app_version">app version 0.33.0.1</string>
+    <string name="titleTemplate">模板文件</string>
+
+</resources>
