@@ -6,4 +6,7 @@
 
 ### [编译方法](http://https://github.com/FrpcCluster/frpc-Android/blob/master/Compile_zh.md)
 
+### [下载地址](https://www.pgyer.com/afrp)
+
+
 
