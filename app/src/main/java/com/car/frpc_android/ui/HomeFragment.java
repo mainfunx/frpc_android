@@ -284,20 +284,14 @@ public class HomeFragment extends Fragment {
             emitter.onComplete();
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        tvLogcat.append(s);
-                        tvLogcat.append("\r\n");
-                        svLogcat.fullScroll(View.FOCUS_DOWN);
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        throwable.printStackTrace();
-                        tvLogcat.append(throwable.toString());
-                        tvLogcat.append("\r\n");
-                    }
+                .subscribe(s -> {
+                    tvLogcat.append(s);
+                    tvLogcat.append("\r\n");
+                    svLogcat.fullScroll(View.FOCUS_DOWN);
+                }, throwable -> {
+                    throwable.printStackTrace();
+                    tvLogcat.append(throwable.toString());
+                    tvLogcat.append("\r\n");
                 });
 
 
