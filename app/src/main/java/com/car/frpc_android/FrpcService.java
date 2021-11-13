@@ -56,6 +56,10 @@ public class FrpcService extends Service {
         }.start();
     }
 
+    /**
+     * 由于{@link Frpclib  没有停止的native底层方法，所以采取 @link AndroidManifest 开启进程方式，关闭直接杀死进程}
+     *
+     * **/
     @Override
     public void onDestroy() {
         super.onDestroy();
