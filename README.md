@@ -6,7 +6,7 @@
 
 ### NDK version: 20.0.5594570
 
-### [下载地址](https://www.pgyer.com/afrp)
+### [下载地址](https://github.com/ETCPark/frpc_android/releases/download/0.35.1.1/car-v0.35.1.1.apk)
 
 
 
