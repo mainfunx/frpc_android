@@ -1,16 +1,11 @@
 package com.car.frpc_android.ui;
 
-import android.Manifest;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.car.frpc_android.Constants;
-import com.car.frpc_android.R;
-import com.google.android.material.navigation.NavigationView;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,10 +15,19 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.car.frpc_android.CommonUtils;
+import com.car.frpc_android.R;
+import com.car.frpc_android.database.Config;
+import com.google.android.material.navigation.NavigationView;
+import com.jeremyliao.liveeventbus.LiveEventBus;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -50,18 +54,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
         navView.setNavigationItemSelectedListener(this);
-        init();
-    }
 
-    private void init() {
-        checkPermissions(new Consumer<Boolean>() {
-            @Override
-            public void accept(Boolean aBoolean) throws Exception {
-                if (!aBoolean) {
-                    Constants.tendToSettings(MainActivity.this);
-                }
-            }
-        });
+
     }
 
 
@@ -69,23 +63,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_new_text:
-                actionNewText();
+                CommonUtils.getStringFromRaw(MainActivity.this, R.raw.frpc)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<String>() {
+                            @Override
+                            public void onSubscribe(@NonNull Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onNext(@NonNull String content) {
+                                LiveEventBus.get(IniEditActivity.INTENT_EDIT_INI).post(new Config(content));
+                                startActivity(new Intent(MainActivity.this, IniEditActivity.class));
+
+                            }
+
+                            @Override
+                            public void onError(@NonNull Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
                 break;
 
         }
         return super.onOptionsItemSelected(item);
     }
 
-
-    private void actionNewText() {
-        checkPermissions(aBoolean -> {
-            if (!aBoolean) {
-                Constants.tendToSettings(MainActivity.this);
-                return;
-            }
-            startActivity(new Intent(MainActivity.this, IniEditActivity.class));
-        });
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -100,14 +109,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 || super.onSupportNavigateUp();
     }
 
-    private void checkPermissions(Consumer<Boolean> consumer) {
-        Disposable subscribe = new RxPermissions(this)
-                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
-                .subscribe(consumer);
-
-
-    }
-
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -115,18 +116,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.logcat:
                 startActivity(new Intent(this, LogcatActivity.class));
                 return true;
-            case R.id.about:
-                showAbout();
-                drawerLayout.close();
-                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void showAbout() {
-        new MaterialDialog.Builder(this)
-                .title("Frp 版本")
-                .content("0.33.0")
-                .show();
-    }
 }

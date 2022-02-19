@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 31
 
     defaultConfig {
         applicationId "com.car.frpc_android"
         minSdkVersion 19
-        targetSdkVersion 29
-        versionCode 3
-        versionName "0.35.1.1"
+        targetSdkVersion 31
+        versionCode 4
+        versionName "0.39.1.1"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,8 +22,7 @@ android {
     android.applicationVariants.all {
         variant ->
             variant.outputs.all {
-                def project = "${variant.applicationId}".split("\\.")[1]
-                outputFileName = "${project}-v${variant.versionName}.apk"
+                outputFileName = "frpc_adnroid-v${variant.versionName}.apk"
             }
     }
 
@@ -66,13 +65,20 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.6.2'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.2'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.16'
-    implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
 
     implementation 'com.github.ahmadaghazadeh:CodeEditor:1.0.17'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
-    implementation 'com.github.clans:fab:1.6.4'
+    implementation 'io.github.jeremyliao:live-event-bus-x:1.8.0'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation "androidx.multidex:multidex:2.0.1"
+
+    def room_version = "2.4.1"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-rxjava2:$room_version"
 
 
 }

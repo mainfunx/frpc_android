@@ -1,68 +1,49 @@
 package com.car.frpc_android.ui;
 
-import android.Manifest;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.car.frpc_android.Constants;
-import com.car.frpc_android.FrpcService;
-import com.car.frpc_android.R;
-import com.car.frpc_android.adapter.FileListAdapter;
-import com.github.clans.fab.FloatingActionButton;
-import com.tbruyelle.rxpermissions2.RxPermissions;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-
 import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.car.frpc_android.CommonUtils;
+import com.car.frpc_android.FrpcService;
+import com.car.frpc_android.R;
+import com.car.frpc_android.adapter.FileListAdapter;
+import com.car.frpc_android.database.AppDatabase;
+import com.car.frpc_android.database.Config;
+import com.jeremyliao.liveeventbus.LiveEventBus;
+
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Observer;
+import frpclib.Frpclib;
+import io.reactivex.CompletableObserver;
+import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-import static android.content.Context.ACTIVITY_SERVICE;
-
 public class HomeFragment extends Fragment {
-
+    public static final String EVENT_UPDATE_CONFIG = "EVENT_UPDATE_CONFIG";
+    public static final String EVENT_RUNNING_ERROR = "EVENT_RUNNING_ERROR";
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
     @BindView(R.id.refreshView)
     SwipeRefreshLayout refreshView;
-    @BindView(R.id.tv_state)
-    TextView tvState;
-    @BindView(R.id.tv_logcat)
-    TextView tvLogcat;
-    @BindView(R.id.sv_logcat)
-    NestedScrollView svLogcat;
 
     private Unbinder bind;
     private FileListAdapter listAdapter;
@@ -78,120 +59,162 @@ public class HomeFragment extends Fragment {
 
     private void init() {
         listAdapter = new FileListAdapter();
-        listAdapter.addChildClickViewIds(R.id.iv_delete, R.id.iv_edit, R.id.info_container);
+        listAdapter.addChildClickViewIds(R.id.iv_play, R.id.iv_delete, R.id.iv_edit);
 
         listAdapter.setOnItemChildClickListener((adapter, view, position) -> {
-            if (view.getId() == R.id.iv_edit) {
-                editIni(position);
-            } else if (view.getId() == R.id.iv_delete) {
-                deleteFile(position);
-            } else if (view.getId() == R.id.info_container) {
-                if (isRunService(getContext())) {
-                    Toast.makeText(getContext(), R.string.needStopService, Toast.LENGTH_SHORT).show();
+            Config item = listAdapter.getItem(position);
+            if (view.getId() == R.id.iv_play) {
+                if (!CommonUtils.isServiceRunning(FrpcService.class.getName(), getContext())) {
+                    getContext().startService(new Intent(getContext(), FrpcService.class));
+                }
+                if (Frpclib.isRunning(item.getUid())) {
+                    Frpclib.close(item.getUid());
+                    item.setConnecting(false);
+                    listAdapter.notifyItemChanged(position);
+                    checkAndStopService();
                     return;
                 }
-                listAdapter.setSelectItem(listAdapter.getItem(position));
+                CommonUtils.waitService(FrpcService.class.getName(), getContext())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new CompletableObserver() {
+                            MaterialDialog progress;
+
+                            @Override
+                            public void onSubscribe(Disposable d) {
+                                progress = new MaterialDialog.Builder(getContext())
+                                        .content(R.string.tipWaitService)
+                                        .canceledOnTouchOutside(false)
+                                        .progress(true, 100)
+                                        .show();
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                progress.dismiss();
+                                LiveEventBus.get(FrpcService.INTENT_KEY_FILE).postAcrossProcess(item.getUid());
+                                item.setConnecting(true);
+                                listAdapter.notifyItemChanged(position);
+
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+                        });
+                return;
+            }
+
+            if (Frpclib.isRunning(item.getUid())) {
+                Toast.makeText(getContext(), getResources().getText(R.string.tipServiceRunning), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (view.getId() == R.id.iv_edit) {
+                editConfig(position);
+                return;
+            }
+            if (view.getId() == R.id.iv_delete) {
+                new MaterialDialog.Builder(getContext())
+                        .title(R.string.dialogConfirmTitle)
+                        .content(R.string.configDeleteConfirm)
+                        .canceledOnTouchOutside(false)
+                        .negativeText(R.string.cancel)
+                        .positiveText(R.string.done)
+                        .onNegative((dialog, which) -> dialog.dismiss())
+                        .onPositive((dialog, which) -> deleteConfig(position))
+                        .show();
             }
         });
         recyclerView.setAdapter(listAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-        refreshView.setOnRefreshListener(this::setData);
+        refreshView.setOnRefreshListener(() -> getData());
+        LiveEventBus.get(EVENT_UPDATE_CONFIG, Config.class).observe(this, config -> {
+            int position = listAdapter.getData().indexOf(config);
+            if (position < 0) {
+                listAdapter.addData(config);
+            } else {
+                listAdapter.notifyItemChanged(position);
+            }
+        });
+        LiveEventBus.get(EVENT_RUNNING_ERROR, String.class).observe(this, uid -> {
 
-        syncServiceState();
+            int position = listAdapter.getData().indexOf(new Config().setUid(uid));
+            Config item = listAdapter.getItem(position);
+            item.setConnecting(false);
+            listAdapter.notifyItemChanged(position);
+            checkAndStopService();
+        });
+
+
+        recyclerView.postDelayed(this::getData, 1500);
+
     }
 
-    private void syncServiceState() {
-        if (!isRunService(getContext())) {
-            setServiceState(R.color.colorPlay, R.drawable.ic_play_white, R.string.notOpened);
-        } else {
-            setServiceState(R.color.colorStop, R.drawable.ic_stop_white, R.string.hasOpened);
+    private void checkAndStopService() {
+        if (TextUtils.isEmpty(Frpclib.getUids())) {
+            getContext().stopService(new Intent(getContext(), FrpcService.class));
         }
     }
 
-    private void setServiceState(int color, int res, int text) {
-        fab.setColorNormal(getResources().getColor(color));
-        fab.setImageResource(res);
-        tvState.setText(text);
-    }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        setData();
-    }
-
-    private void editIni(int position) {
-        File item = listAdapter.getItem(position);
-        checkPermissions(aBoolean -> {
-            if (!aBoolean) {
-                Constants.tendToSettings(getContext());
-                return;
-            }
-            Intent intent = new Intent(getContext(), IniEditActivity.class);
-            intent.putExtra(getString(R.string.intent_key_file), item.getPath());
-            startActivity(intent);
-        });
+    private void editConfig(int position) {
+        Config item = listAdapter.getItem(position);
+        LiveEventBus.get(IniEditActivity.INTENT_EDIT_INI).post(item);
+        startActivity(new Intent(getContext(), IniEditActivity.class));
 
     }
 
-    private void deleteFile(int position) {
-        File item = listAdapter.getItem(position);
-        Observable.just(item)
-                .map(file -> item.delete())
-                .subscribeOn(Schedulers.newThread())
+    private void deleteConfig(int position) {
+        AppDatabase.getInstance(getContext())
+                .configDao()
+                .delete(listAdapter.getItem(position))
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Boolean>() {
+                .subscribe(new CompletableObserver() {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(@NonNull Disposable d) {
 
-                    }
-
-                    @Override
-                    public void onNext(Boolean aBoolean) {
-                        if (aBoolean) {
-                            listAdapter.removeAt(position);
-                        } else {
-                            Toast.makeText(getContext(), item.getName() + getString(R.string.actionDeleteFailed), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onComplete() {
+                        listAdapter.removeAt(position);
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
 
                     }
                 });
+
     }
 
-    private void setData() {
-        getFiles().subscribeOn(Schedulers.io())
+    private void getData() {
+        AppDatabase.getInstance(getContext())
+                .configDao()
+                .getAll()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<List<File>>() {
+                .subscribe(new SingleObserver<List<Config>>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(@NonNull Disposable d) {
                         refreshView.setRefreshing(true);
 
                     }
 
                     @Override
-                    public void onNext(List<File> files) {
+                    public void onSuccess(@NonNull List<Config> configs) {
                         refreshView.setRefreshing(false);
-                        listAdapter.setList(files);
+                        listAdapter.setList(configs);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-
-                    }
-
-                    @Override
-                    public void onComplete() {
+                    public void onError(@NonNull Throwable e) {
                         refreshView.setRefreshing(false);
 
                     }
@@ -204,97 +227,5 @@ public class HomeFragment extends Fragment {
         bind.unbind();
     }
 
-    public Observable<List<File>> getFiles() {
-        return Observable.create((ObservableOnSubscribe<List<File>>) emitter -> {
-            File path = Constants.getIniFileParent(getContext());
-            File[] files = path.listFiles();
-            emitter.onNext(files != null ? Arrays.asList(files) : new ArrayList<>());
-            emitter.onComplete();
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
-
-    }
-
-
-    private void checkPermissions(Consumer<Boolean> consumer) {
-        Disposable subscribe = new RxPermissions(this)
-                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE)
-                .subscribe(consumer);
-
-
-    }
-
-    @OnClick(R.id.fab)
-    public void onViewClicked() {
-        if (isRunService(getContext())) {
-            getContext().stopService(new Intent(getContext(), FrpcService.class));
-            setServiceState(R.color.colorPlay, R.drawable.ic_play_white, R.string.notOpened);
-        } else {
-
-            if (listAdapter.getSelectItem() == null) {
-                Toast.makeText(getContext(), R.string.notSelectIni, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            readLog();
-            Intent service = new Intent(getContext(), FrpcService.class);
-            service.putExtra(getResources().getString(R.string.intent_key_file), listAdapter.getSelectItem().getPath());
-            getContext().startService(service);
-            setServiceState(R.color.colorStop, R.drawable.ic_stop_white, R.string.hasOpened);
-        }
-
-    }
-
-    public boolean isRunService(Context context) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            String simpleName = FrpcService.class.getName();
-            if (simpleName.equals(service.process)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Disposable readingLog = null;
-
-    private void readLog() {
-        tvLogcat.setText("");
-        if (readingLog != null) return;
-        HashSet<String> lst = new LinkedHashSet<String>();
-        lst.add("logcat");
-        lst.add("-T");
-        lst.add("0");
-        lst.add("-v");
-        lst.add("time");
-        lst.add("-s");
-        lst.add("GoLog,com.car.frpc_android.FrpcService");
-        readingLog = Observable.create((ObservableOnSubscribe<String>) emitter -> {
-
-            Process process = Runtime.getRuntime().exec(lst.toArray(new String[0]));
-
-            InputStreamReader in = new InputStreamReader(process.getInputStream());
-            BufferedReader bufferedReader = new BufferedReader(in);
-
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                emitter.onNext(line);
-            }
-            in.close();
-            bufferedReader.close();
-            emitter.onComplete();
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(s -> {
-                    tvLogcat.append(s);
-                    tvLogcat.append("\r\n");
-                    svLogcat.fullScroll(View.FOCUS_DOWN);
-                }, throwable -> {
-                    throwable.printStackTrace();
-                    tvLogcat.append(throwable.toString());
-                    tvLogcat.append("\r\n");
-                });
-
-
-    }
 
 }

@@ -10,28 +10,30 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:title="配置文件"
-            app:titleTextColor="#fff" />
+            app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <com.github.ahmadaghazadeh.editor.widget.CodeEditor
         android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:code="#"
-        app:lang="sh"
+        android:theme="@style/Theme.Material3.Dark"
+
         app:isReadOnly="false"
         app:isShowExtendedKeyboard="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        app:lang="sh" />
 
 
 </LinearLayout>

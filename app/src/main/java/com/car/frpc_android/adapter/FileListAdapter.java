@@ -1,49 +1,54 @@
 package com.car.frpc_android.adapter;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 
+import androidx.core.widget.ContentLoadingProgressBar;
+import androidx.core.widget.ImageViewCompat;
+
+import com.car.frpc_android.CommonUtils;
 import com.car.frpc_android.R;
+import com.car.frpc_android.database.Config;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
-public class FileListAdapter extends BaseQuickAdapter<File, BaseViewHolder> {
+import frpclib.Frpclib;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
+public class FileListAdapter extends BaseQuickAdapter<Config, BaseViewHolder> {
 
-    private File selectItem = null;
 
     public FileListAdapter() {
         super(R.layout.item_recycler_main);
     }
 
-    public FileListAdapter setSelectItem(File selectItem) {
-        this.selectItem = selectItem;
-        notifyDataSetChanged();
-        return this;
-    }
 
-    public File getSelectItem() {
-        return selectItem;
-    }
 
     @Override
-    public void removeAt(int position) {
-        File item = getItem(position);
-        if (selectItem != null && item.getPath().equals(selectItem.getPath())) {
-            selectItem = null;
-        }
-        super.removeAt(position);
-    }
-
-    @Override
-    protected void convert(@NotNull BaseViewHolder baseViewHolder, File file) {
+    protected void convert(@NotNull BaseViewHolder baseViewHolder, Config file) {
         baseViewHolder.setText(R.id.tv_name, file.getName());
-        RadioButton btnRadio = baseViewHolder.findView(R.id.btn_radio);
-        btnRadio.setChecked(selectItem != null && selectItem.getPath().equals(file.getPath()));
+        boolean running =(file.getConnecting() != null && file.getConnecting())|| Frpclib.isRunning(file.getUid());
+        baseViewHolder.setImageResource(R.id.iv_play, running ? R.drawable.ic_stop_white : R.drawable.ic_play_white);
+        ImageViewCompat.setImageTintList(baseViewHolder.getView(R.id.iv_play), ColorStateList.valueOf(getContext().getResources().getColor(running ? R.color.colorStop : R.color.black)));
+
+
+
 
     }
 

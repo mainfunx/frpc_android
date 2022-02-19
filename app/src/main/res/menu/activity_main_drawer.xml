@@ -19,7 +19,7 @@
             <item
                 android:id="@+id/about"
                 android:icon="@drawable/ic_logcat_white"
-                android:title="@string/title_about" />
+                android:title="@string/frpc_version" />
 
         </menu>
     </item>

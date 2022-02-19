@@ -25,10 +25,10 @@
     <string name="action_template">模板</string>
     <string name="titleInputFileName">请输入文件名称</string>
     <string name="cancel">取消</string>
+    <string name="done">确定</string>
     <string name="tipSaveSuccess">保存成功</string>
     <string name="actionDeleteSuccess">已删除 </string>
     <string name="actionDeleteFailed"> 删除失败</string>
-    <string name="intent_key_file">file_path</string>
     <string name="titleModifyFileName">修改文件名称</string>
     <string name="notOpened">未开启</string>
     <string name="hasOpened">已开启</string>
@@ -40,8 +40,11 @@
     <string name="logcat_copy">复制</string>
     <string name="logcat_delete">删除</string>
     <string name="copySuccess">复制成功</string>
-    <string name="title_frp_version">frp version 0.33.0</string>
-    <string name="title_app_version">app version 0.33.0.1</string>
     <string name="titleTemplate">模板文件</string>
+    <string name="frpc_version">frpc v0.39.1</string>
+    <string name="dialogConfirmTitle">提示</string>
+    <string name="configDeleteConfirm">确定删除该条配置</string>
+    <string name="tipServiceRunning">该配置正在运行中，请先关闭</string>
+    <string name="tipWaitService">正在启动服务</string>
 
 </resources>

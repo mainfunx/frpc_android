@@ -4,12 +4,10 @@
     package="com.car.frpc_android">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_LOGS" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <application
+    <application android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -20,16 +18,15 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name=".ui.LogcatActivity"
-            android:label="@string/title_activity_main"
-            android:process="com.car.frpc_android.FrpcView" />
+            android:label="@string/title_activity_main" />
         <activity
             android:name=".ui.IniEditActivity"
-            android:label="@string/title_activity_main"
-            android:process="com.car.frpc_android.FrpcView" />
+            android:label="@string/title_activity_main" />
         <activity
             android:name=".ui.MainActivity"
+            android:launchMode="singleTop"
+            android:exported="true"
             android:label="@string/title_activity_main"
-            android:process="com.car.frpc_android.FrpcView"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,13 +35,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:label="@string/title_activity_main"
             android:name=".ui.TemplateActivity"
-            android:process="com.car.frpc_android.FrpcView" />
+            android:label="@string/title_activity_main" />
 
-        <service
-            android:name=".FrpcService"
-            android:process="com.car.frpc_android.FrpcService" />
+        <service android:name=".FrpcService" />
     </application>
 
 </manifest>

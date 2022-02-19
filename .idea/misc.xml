@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1935" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1935" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/activity_ini_edit.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/activity_logcat.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/activity_main.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/app_bar_main.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/content_main.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/fragment_home.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/layout/item_recycler_main.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/menu/activity_main_drawer.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/menu/main.xml" value="0.20208333333333334" />
+        <entry key="..\:/IDE/WorkSpace/Android/frpc_android/app/src/main/res/menu/menu_logcat.xml" value="0.20208333333333334" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
