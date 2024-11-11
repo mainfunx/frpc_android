@@ -1,0 +1,61 @@
+# secrets:
+# ANDROID_KEY_BASE64
+# ANDROID_KS_PASS
+# ANDROID_KEY_ALIAS
+
+name: Android Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'microsoft'
+          cache: gradle
+
+      - name: Build with Gradle
+        run: chmod +x gradlew && ./gradlew app:assemble
+
+      - name: Key base64 to file
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: 'android_key.jks'
+          fileDir: '/tmp/.android_key/'
+          encodedString: ${{ secrets.ANDROID_KEY_BASE64 }}
+
+      - name: Install apksigner
+        run: sudo apt install apksigner
+
+      - name: Sign APK
+        env:
+          ANDROID_KS_PASS: ${{ secrets.ANDROID_KS_PASS }}
+        run: |
+          for file in app/build/outputs/apk/release/*.apk; do
+            filename="${file##*/}"
+            echo "Signing ${filename}"
+            apksigner sign --v4-signing-enabled false --ks /tmp/.android_key/android_key.jks --ks-pass env:ANDROID_KS_PASS --ks-key-alias ${{ secrets.ANDROID_KEY_ALIAS }} ${file}
+          done
+
+#      - name: Upload APK to artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: app-release.apk
+#          path: app/build/outputs/apk/release/*.apk
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/*.apk
+

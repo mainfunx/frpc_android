@@ -41,10 +41,11 @@
     <string name="logcat_delete">删除</string>
     <string name="copySuccess">复制成功</string>
     <string name="titleTemplate">模板文件</string>
-    <string name="frpc_version">frpc v0.39.1</string>
+    <string name="frpc_version">frpc v0.61.0</string>
     <string name="dialogConfirmTitle">提示</string>
     <string name="configDeleteConfirm">确定删除该条配置</string>
     <string name="tipServiceRunning">该配置正在运行中，请先关闭</string>
     <string name="tipWaitService">正在启动服务</string>
+    <string name="please_allow_notification_permissions">请允许通知权限</string>
 
 </resources>

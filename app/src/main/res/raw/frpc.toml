@@ -1,0 +1,18 @@
+serverAddr = "frp.yourdomain.com"
+serverPort = 7000
+auth.method = "token"
+auth.token = "xxx"
+
+[[proxies]]
+name = "android-web"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 8080
+remotePort = 8080
+
+[[proxies]]
+name = "android-adb"
+type = "stcp"
+secretKey = "your_secret_key"
+localIP = "127.0.0.1"
+localPort = 5555

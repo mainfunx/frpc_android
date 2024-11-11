@@ -2,14 +2,17 @@
 
 buildscript {
     
+    ext {
+        kotlin_version = '2.0.21'
+    }
     repositories {
         google()
+        mavenCentral()
         jcenter()
-        
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.1'
-        classpath 'com.jakewharton:butterknife-gradle-plugin:10.2.1'
+        classpath 'com.android.tools.build:gradle:8.5.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -20,9 +23,9 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url "https://jitpack.io" }
-
+        jcenter()
     }
 }
 
